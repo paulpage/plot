@@ -7,7 +7,7 @@ def main():
     if len(sys.argv) < 2:
         print("Please enter filename.")
     else:
-        data = map(read_csv(sys.argv[1]))
+        data = parse_data(read_csv(sys.argv[1]), get_parsers(sys.argv[2]))
         plot(data)
 
 
@@ -20,11 +20,24 @@ def read_csv(filename):
     return results
 
 
-def map(data):
-    return zip(*[[row[0],
-            int(row[1]),
-            float(row[2]),
-            row[3]] for row in data])
+def parse_data(data, parsers):
+    return zip(*[
+        [parsers[i](row[i]) for i in range(len(row))]
+        for row in data
+    ])
+
+
+def get_parser(target_type):
+    if target_type == 'int':
+        return lambda x : int(x)
+    elif target_type == 'float':
+        return lambda x : float(x)
+    else:
+        return lambda x : x
+
+
+def get_parsers(types):
+    return [get_parser(t) for t in types.split(',')]
 
 
 def plot(data):
